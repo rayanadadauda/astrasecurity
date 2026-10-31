@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstraSec</title>
+  <style>
+    :root {
+      --primary: #635bff;
+      --secondary: #06d6a0;
+      --danger: #ff3366;
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --text: #ffffff;
+      --muted: #888888;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(13, 13, 13, 0.98);
+      backdrop-filter: blur(20px);
+      z-index: 100;
+      border-bottom: 1px solid #333;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-btn {
+      padding: 0.6rem 1.2rem;
+      background: var(--primary);
+      color: var(--bg);
+      border: none;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 91, 255, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-top: 4.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem;
+      border-radius: 20px;
+      background: var(--card);
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #333;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .card-header h3 {
+      font-size: 1.2rem;
+    }
+
+    .card-header span {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.8rem;
+      background: var(--bg);
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .form-group input[type="file"] {
+      padding: 0;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 91, 255, 0.3);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--bg);
+    }
+
+    .btn-secondary {
+      background: #444;
+      color: var(--text);
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    td {
+      font-size: 0.9rem;
+    }
+
+    .status-online {
+      color: var(--secondary);
+    }
+
+    .status-offline {
+      color: var(--muted);
+    }
+
+    /* Navigation */
+    .nav-active {
+      color: var(--primary) !important;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--card);
+      margin: 5% auto;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .close {
+      color: var(--muted);
+      float: right;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">AstraSec</a>
+      <ul class="nav-links">
+        <li><a href="#create">Create App</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#users">Users</a></li>
+      </ul>
+      <button class="nav-btn" onclick="openModal()">Create App</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Hero -->
+    <section class="hero" id="create">
+      <div class="card">
+        <h1>AstraSec</h1>
+        <p>Project security platform</p>
+        <div style="margin-top: 1rem;">
+          <button class="btn btn-primary" onclick="openCreateModal()">Create New Project</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Create Project Modal -->
+    <div id="create-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Create New Project</h2>
+        <form id="create-form">
+          <div class="form-group">
+            <label>Project Name</label>
+            <input type="text" id="proj-name" placeholder="e.g. Project 1" required>
+          </div>
+          <div class="form-group">
+            <label>Upload EXE</label>
+            <input type="file" id="proj-exe" accept=".exe" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Create App</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Project Overview -->
+    <section id="overview" style="display: none;">
+      <div class="card">
+        <h2>Project Overview</h2>
+        <p id="proj-name-display">Select a project to view details</p>
+        <div id="proj-details">
+          <!-- Project details will load here -->
+        </div>
+        <button class="btn btn-secondary" onclick="goBack()">Back to Projects</button>
+      </div>
+      <div class="card" style="margin-top: 1rem;">
+        <h3>Upload / Update EXE</h3>
+        <p>Replace the EXE for this project</p>
+        <form id="update-exe-form">
+          <div class="form-group">
+            <label>Upload New EXE</label>
+            <input type="file" id="new-exe" accept=".exe" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Update EXE</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Users Page -->
+    <section id="users" style="display: none;">
+      <div class="card">
+        <h2>Users Overview</h2>
+        <p>Tracking project usage</p>
+        <div id="users-list">
+          <!-- Users will load here -->
+        </div>
+        <p class="muted" style="margin-top: 1rem;">Online users: <span id="online-count">0</span></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Create Project Modal (alternative) -->
+  <div id="create-modal2" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal2()">&times;</span>
+      <h2>Create New Project</h2>
+      <form id="create-form2">
+        <div class="form-group">
+          <label>Project Name</label>
+          <input type="text" id="proj-name2" placeholder="e.g. Project 1" required>
+        </div>
+        <div class="form-group">
+          <label>Upload EXE</label>
+          <input type="file" id="proj-exe2" accept=".exe" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Create App</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loader Modal -->
+  <div id="loader-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeLoaderModal()">&times;</span>
+      <h2>Loader</h2>
+      <div class="hero" style="text-align: left; padding: 2rem; margin-bottom: 2rem;">
+        <h2>Loading...</h2>
+        <p>Fetching your cheat...</p>
+      </div>
+      <p id="loader-project-name"></p>
+      <p style="margin: 2rem 0; color: var(--muted);">Project: <span id="loader-proj-name-details"></span></p>
+      <button class="btn btn-primary" style="width: 100%; margin-bottom: 1rem;" onclick="simulateLoad()">Execute Cheat</button>
+      <p style="color: var(--muted); font-size: 0.8rem;">This will show "Loading..." in console and attempt to load your cheat in memory.</p>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let projects = JSON.parse(localStorage.getItem('astrasec_projects') || '[]');
+    let editingProject = null;
+    let onlineUsers = 0;
+
+    // DOM Elements
+    const createModal = document.getElementById('create-modal');
+    const createModal2 = document.getElementById('create-modal2');
+    const loaderModal = document.getElementById('loader-modal');
+    const onlineCountEl = document.getElementById('online-count');
+
+    // Initialize
+    renderProjects();
+
+    // Render Projects
+    function renderProjects(filter = '') {
+      const heroSection = document.getElementById('create');
+      const overviewSection = document.getElementById('overview');
+      const usersSection = document.getElementById('users');
+      
+      // Hide all sections
+      heroSection.style.display = 'none';
+      overviewSection.style.display = 'none';
+      usersSection.style.display = 'none';
+
+      // Show hero if no projects or filter is empty
+      if (projects.length === 0 || !filter) {
+        heroSection.style.display = 'block';
+        return;
+      }
+
+      // Show overview for first project if no filter
+      if (!filter && projects.length > 0) {
+        showOverview(projects[0].id);
+        usersSection.style.display = 'none';
+        return;
+      }
+
+      // Build project list
+      const cardContainer = document.getElementById('proj-details') || document.body;
+      let projectHtml = '';
+
+      projects
+        .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()) || !filter)
+        .forEach((p, index) => {
+          const onlineClass = p.online > 0 ? 'status-online' : 'status-offline';
+          const onlineText = p.online > 0 ? `Online: ${p.online}` : 'Offline';
+          
+          projectHtml += `
+            <div class="card" style="padding: 1.5rem; border: 1px solid #444; margin-bottom: 1rem;">
+              <div class="card-header">
+                <span>${p.name}</span>
+                <span class="${onlineClass}">${onlineText}</span>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-small" onclick="openLoader('${p.id}')">Download Loader</button>
+                <button class="btn btn-small btn-danger" onclick="removeProject('${p.id}')">Remove</button>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">EXE: ${p.exe ? 'Uploaded' : 'No EXE'}</p>
+            </div>
+          `;
+        });
+
+      heroSection.innerHTML = projectHtml;
+      heroSection.style.display = 'block';
+    }
+
+    // Show Overview
+    function showOverview(projId) {
+      const proj = projects.find(p => p.id === projId);
+      if (!proj) return;
+
+      document.getElementById('proj-name-display').textContent = `Project: ${proj.name}`;
+      
+      let exeStatus = 'No EXE uploaded';
+      if (proj.exe) {
+        exeStatus = 'EXE uploaded - ' + (proj.exe.length > 50 ? proj.exe.substring(0, 50) + '...' : proj.exe);
+      }
+
+      document.getElementById('proj-details').innerHTML = `
+        <p>Status: ${exeStatus}</p>
+        <p>Online users: <span class="${proj.online > 0 ? 'status-online' : 'status-offline'}" id="proj-online">${proj.online || 0}</span></p>
+        <button class="btn btn-secondary" onclick="goBack()">← Back to Projects</button>
+        <form id="update-exe-form2">
+          <div class="form-group">
+            <label>Upload / Update EXE</label>
+            <input type="file" id="new-exe2" accept=".exe" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Update EXE</button>
+        </form>
+      `;
+
+      document.getElementById('overview').style.display = 'block';
+      document.getElementById('users').style.display = 'none';
+    }
+
+    // Go back
+    function goBack() {
+      document.getElementById('overview').style.display = 'none';
+      renderProjects();
+    }
+
+    // Open modals
+    function openModal() {
+      createModal.style.display = 'block';
+    }
+
+    function openCreateModal() {
+      createModal2.style.display = 'block';
+    }
+
+    function closeModal() {
+      createModal.style.display = 'none';
+    }
+
+    function closeModal2() {
+      createModal2.style.display = 'none';
+    }
+
+    function openLoader(projId) {
+      const proj = projects.find(p => p.id === projId);
+      if (!proj) return alert('Project not found');
+
+      document.getElementById('loader-project-name').textContent = `Project: ${proj.name}`;
+      document.getElementById('loader-proj-name-details').textContent = proj.name;
+      loaderModal.style.display = 'block';
+      
+      // Simulate loading
+      setTimeout(() => {
+        alert('Cheat loaded successfully! Console: "Loading..." then executed.');
+        closeLoaderModal();
+      }, 2000);
+    }
+
+    function closeLoaderModal() {
+      loaderModal.style.display = 'none';
+    }
+
+    // Form submissions
+    document.getElementById('create-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('proj-name').value;
+      const file = document.getElementById('proj-exe').files[0];
+      
+      if (!name || !file) return alert('Name and EXE required');
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        projects.push({
+          id: Date.now().toString(),
+          name,
+          exe: e.target.result.substring(0, 100) + '...',
+          online: 0
+        });
+        localStorage.setItem('astrasec_projects', JSON.stringify(projects));
+        renderProjects();
+        closeModal();
+        alert('Project created! Go to Overview to upload EXE.');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Update EXE
+    document.getElementById('update-exe-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const projId = window.location.hash.replace('#', '') || '0';
+      const proj = projects.find(p => p.id === projId);
+      if (!proj) return;
+
+      const file = document.getElementById('new-exe').files[0];
+      if (!file) return alert('Select an EXE file');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        proj.exe = e.target.result.substring(0, 100) + '...';
+        localStorage.setItem('astrasec_projects', JSON.stringify(projects));
+        renderProjects();
+        showOverview(projId);
+        alert('EXE updated successfully!');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Update EXE on overview
+    document.getElementById('update-exe-form2').addEventListener('submit', e => {
+      e.preventDefault();
+      const projId = window.location.hash.replace('#', '') || '0';
+      const proj = projects.find(p => p.id === projId);
+      if (!proj) return;
+
+      const file = document.getElementById('new-exe2').files[0];
+      if (!file) return alert('Select an EXE file');
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        proj.exe = e.target.result.substring(0, 100) + '...';
+        localStorage.setItem('astrasec_projects', JSON.stringify(projects));
+        renderProjects();
+        showOverview(projId);
+        alert('EXE updated successfully!');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Remove project
+    function removeProject(projId) {
+      if (!confirm('Remove this project?')) return;
+      projects = projects.filter(p => p.id !== projId);
+      localStorage.setItem('astrasec_projects', JSON.stringify(projects));
+      renderProjects();
+    }
+
+    // Simulate load
+    function simulateLoad() {
+      closeLoaderModal();
+      onlineUsers = Math.min(onlineUsers + 1, 50);
+      onlineCountEl.textContent = onlineUsers;
+      alert('Cheat execution simulated. Online users updated.');
+    }
+  </script>
+
+</body>
+</html>
