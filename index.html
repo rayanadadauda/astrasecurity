@@ -5,105 +5,120 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AstraSec</title>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;}body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;}a{color:#635bff;text-decoration:none;}a:hover{color:#fff;}button{cursor:padding:8px 16px;background:#635bff;color:#fff;border:none;border-radius:4px;font-size:14px;margin:4px;}button:hover{background:#5a4eff;} .card{background:#1a1a1a;padding:20px;margin:10px 0;border-radius:8px;border:1px solid #333;} .card h3{margin-bottom:10px;} .status-online{color:#06d6a0;} .status-offline{color:#666;} .container{max-width:1200px;margin:20px auto;padding:20px;} .section{display:none;} .section.active{display:block;}
+    *{margin:0;padding:0;box-sizing:border-box;}body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;}a{color:#635bff;text-decoration:none;margin:8px;}a:hover{color:#fff;}button{cursor:pointer;padding:8px 16px;background:#635bff;color:#fff;border:none;border-radius:4px;font-size:14px;}button:hover{background:#5a4eff;} .card{background:#1a1a1a;padding:20px;margin:10px 0;border-radius:8px;border:1px solid #333;} .card h3{margin-bottom:8px;} .status-online{color:#06d6a0;} .status-offline{color:#666;} .container{max-width:800px;margin:20px auto;padding:20px;} .section{display:none;} .section.active{display:block;} .muted{color:#888;font-size:0.8rem;}
   </style>
 </head>
 <body>
 <div class="container">
   <h1 style="margin-bottom:16px;">AstraSec</h1>
-  
-  <!-- CREATE SECTION -->
-  <section id="create" class="section active">
+
+  <!-- SECTION 1: CREATE PROJECT -->
+  <section id="section-create" class="section active">
     <div class="card">
       <h2>Create New Project</h2>
-      <form id="create-form">
-        <input type="text" id="proj-name" placeholder="Project name (e.g. Project 1)" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;margin-bottom:1rem;">
-        <input type="file" id="proj-exe" accept=".exe" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;margin-bottom:1rem;">
-        <button type="submit" style="width:100%;padding:8px;background:#635bff;">Create App</button>
+      <form id="form-create">
+        <input type="text" id="input-name" placeholder="Project name (e.g. Project 1)" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;margin-bottom:1rem;">
+        <input type="file" id="input-exe" accept=".exe" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;margin-bottom:1rem;">
+        <button type="submit" style="width:100%;background:#635bff;">Create App</button>
       </form>
     </div>
   </section>
 
-  <!-- OVERVIEW SECTION -->
-  <section id="overview" class="section">
+  <!-- SECTION 2: OVERVIEW -->
+  <section id="section-overview" class="section">
     <div class="card">
-      <h2 id="overview-title">Project Overview</h2>
-      <div id="proj-info">
+      <h2 id="overview-h2">Project Overview</h2>
+      <div id="overview-content">
         <!-- Content loaded by JS -->
       </div>
-      <form id="update-exe" style="margin-top:1rem;">
-        <input type="file" id="new-exe" accept=".exe" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius 4px;">
+      <form id="form-update-exe" style="margin-top:1rem;">
+        <input type="file" id="input-new-exe" accept=".exe" style="width:100%;padding:8px;background:#111;border:1px solid #444;color:#fff;border-radius:4px;">
         <button type="submit" style="width:100%;background:#635bff;">Update EXE</button>
       </form>
     </div>
-    <button onclick="showCreate()" style="margin-top:10px;background:#444;">← Back to Projects</button>
+    <button onclick="showSection('create')" style="margin-top:10px;background:#444;">← Back to Projects</button>
   </section>
 
-  <!-- USERS SECTION -->
-  <section id="users" class="section">
+  <!-- SECTION 3: USERS -->
+  <section id="section-users" class="section">
     <div class="card">
       <h2>Users Overview</h2>
-      <p>Online users: <span id="online-count">0</span></p>
-      <p style="color:#888;font-size:0.8rem;">Tracking usage across all projects</p>
-      <button onclick="showCreate()" style="margin-top:10px;background:#444;">← Back to Projects</button>
+      <p>Online users: <span id="span-online">0</span></p>
+      <p class="muted">Tracking usage across all projects</p>
+      <button onclick="showSection('create')" style="margin-top:10px;background:#444;">← Back to Projects</button>
     </div>
   </section>
 </div>
 
 <script>
-  // State from localStorage
-  let projects = JSON.parse(localStorage.getItem('astrasec_projs') || '[]');
+  // State from localStorage (remembers projects when you refresh)
+  let projects = JSON.parse(localStorage.getItem('astrasec') || '[]');
   let onlineUsers = 0;
 
-  // Render everything
+  // Show/hide sections
+  function showSection(name) {
+    const create = document.getElementById('section-create');
+    const overview = document.getElementById('section-overview');
+    const users = document.getElementById('section-users');
+
+    create.classList.remove('active');
+    overview.classList.remove('active');
+    users.classList.remove('active');
+
+    if (name === 'create') create.classList.add('active');
+    if (name === 'overview') overview.classList.add('active');
+    if (name === 'users') users.classList.add('active');
+  }
+
+  // Render projects and sections
   function render() {
-    const createSection = document.getElementById('create');
-    const overviewSection = document.getElementById('overview');
-    const usersSection = document.getElementById('users');
+    const create = document.getElementById('section-create');
+    const overview = document.getElementById('section-overview');
+    const users = document.getElementById('section-users');
 
-    // Hide all sections
-    createSection.classList.remove('active');
-    overviewSection.classList.remove('active');
-    usersSection.classList.remove('active');
+    // Hide all
+    create.classList.remove('active');
+    overview.classList.remove('active');
+    users.classList.remove('active');
 
-    // If no projects, show create section only
+    // If no projects, show create only
     if (projects.length === 0) {
-      createSection.classList.add('active');
-      document.getElementById('online-count').textContent = '0';
+      create.classList.add('active');
+      document.getElementById('span-online').textContent = '0';
       return;
     }
 
-    // Show create section + overview for first project + users
-    createSection.classList.add('active');
-    
-    // Overview for first project
+    // Show create
+    create.classList.add('active');
+
+    // Show overview for first project
     const first = projects[0];
-    document.getElementById('overview-title').textContent = `Project Overview: ${first.name}`;
-    document.getElementById('proj-info').innerHTML = `
+    document.getElementById('overview-h2').textContent = `Project Overview: ${first.name}`;
+    document.getElementById('overview-content').innerHTML = `
       <p><strong>EXE Status:</strong> ${first.exe || 'No EXE uploaded'}</p>
       <p><strong>Online:</strong> <span class="status-online">${first.online || 0}</span></p>
       <p><strong>Project ID:</strong> ${first.id}</p>
     `;
-    overviewSection.classList.add('active');
+    overview.classList.add('active');
 
     // Users online count
     onlineUsers = Math.max(...projects.map(p => p.online || 0), 0);
-    document.getElementById('online-count').textContent = onlineUsers;
+    document.getElementById('span-online').textContent = onlineUsers;
 
     // Users list
     let usersHtml = '<h3>Project Activity</h3>';
     projects.forEach((p, i) => {
       usersHtml += `<p>Project ${i+1} (${p.name}): <span class="${p.online > 0 ? 'status-online' : 'status-offline'}">${p.online || 0} online</span></p>`;
     });
-    usersSection.innerHTML = usersHtml;
-    usersSection.classList.add('active');
+    users.innerHTML = usersHtml;
+    users.classList.add('active');
   }
 
   // Create project form
-  document.getElementById('create-form').addEventListener('submit', e => {
+  document.getElementById('form-create').addEventListener('submit', e => {
     e.preventDefault();
-    const name = document.getElementById('proj-name').value.trim();
-    const file = document.getElementById('proj-exe').files[0];
+    const name = document.getElementById('input-name').value.trim();
+    const file = document.getElementById('input-exe').files[0];
 
     if (!name || !file) return alert('Enter project name and upload EXE');
 
@@ -115,9 +130,26 @@
         exe: 'EXE uploaded',
         online: 0
       });
-      localStorage.setItem('astrasec_projs', JSON.stringify(projects));
+      localStorage.setItem('astrasec', JSON.stringify(projects));
       render();
       alert('Project created! View overview or users.');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Update EXE form
+  document.getElementById('form-update-exe').addEventListener('submit', e => {
+    e.preventDefault();
+    const file = document.getElementById('input-new-exe').files[0];
+    if (!file) return alert('Select an EXE file');
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      // Update first project's EXE status
+      projects[0].exe = 'EXE updated';
+      localStorage.setItem('astrasec', JSON.stringify(projects));
+      render();
+      alert('EXE updated successfully!');
     };
     reader.readAsDataURL(file);
   });
